@@ -12,6 +12,7 @@ curl $DEPLOYER_URL/pushingkey.enc -o $DISTRIBUTION_HOME/pushingkey.enc
 curl $DEPLOYER_URL/secring.gpg -o $DISTRIBUTION_HOME/secring.gpg
 curl $DEPLOYER_URL/settings.xml -o $MVN_SETTINGS
 
+ls -lth $DISTRIBUTION_HOME
 cat $MVN_SETTINGS
 
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
