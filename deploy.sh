@@ -7,6 +7,8 @@ MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 
 mkdir -p $DISTRIBUTION_HOME
 
+echo "DEPLOYER_URL = $DEPLOYER_URL"
+
 curl $DEPLOYER_URL/pubring.gpg -o $DISTRIBUTION_HOME/pubring.gpg
 curl $DEPLOYER_URL/pushingkey.enc -o $DISTRIBUTION_HOME/pushingkey.enc
 curl $DEPLOYER_URL/secring.gpg -o $DISTRIBUTION_HOME/secring.gpg

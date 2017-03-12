@@ -8,3 +8,4 @@ Required properties (defined in Travis):
 - GIT_USER
 - OSSRH_JIRA_USERNAME
 - OSSRH_JIRA_PASSWORD
+- GROUP_ID_PATH (ex: fr/landel/utils)
