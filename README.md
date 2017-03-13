@@ -1,7 +1,7 @@
 A simple maven deployer
 
 Required properties (defined in Travis):
-- DEPLOYER_URL (ex: https://raw.githubusercontent.com/Gilandel/deployer)
+- DEPLOYER_URL (ex: https://raw.githubusercontent.com/Gilandel/deployer/master)
 - ENCPRYPTED_KEY
 - ENCPRYPTED_IV
 - GIT_EMAIL
