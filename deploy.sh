@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -ev
-
 DISTRIBUTION_HOME=${HOME}/build/${TRAVIS_REPO_SLUG}/distribution
 MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 
@@ -17,7 +15,8 @@ if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
 	
 	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS}
 elif [ "$TRAVIS_BRANCH" = 'release' ]; then
-	if [[ `git log --format=%B -n 1` == *"[maven-release-plugin]"* ]]; then
+	GIT_LAST_LOG=$(git log --format=%B -n 1)
+	if test "${GIT_LAST_LOG#*[maven-release-plugin]}" != "$GIT_LAST_LOG"; then
 		echo "Do not release commits created by maven release plugin"
 	else
 		echo "Prepare and perform RELEASE"
