@@ -24,7 +24,6 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		# Decrypt SSH key so we can push release to GitHub
 		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in distribution/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d
 		chmod 600 ${HOME}/.ssh/id_rsa
-		cat ${HOME}/.ssh/id_rsa
 		
 		git config --global user.email "$GIT_EMAIL"
 		git config --global user.name "$GIT_USER"
@@ -36,14 +35,14 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		git checkout release
 		
 		# Prepare and release
-		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS}
-		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true --settings ${MVN_SETTINGS}"
+		mvn release:clean release:prepare -B -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS}
+		mvn release:perform -B -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS}
 		
 		# Merge the release branch with master
 		git fetch origin +master:master
 		git checkout master
 		git merge release
-		git push -v origin master
+		git push origin master
 	fi
 else
 	echo "Only build"
