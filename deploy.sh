@@ -42,7 +42,8 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		git fetch origin +master:master
 		git checkout master
 		git merge release
-		git push origin master
+		# git push origin master
+		git push git@github.com:${TRAVIS_REPO_SLUG}.git refs/heads/master:refs/heads/master
 	fi
 else
 	echo "Only build"
