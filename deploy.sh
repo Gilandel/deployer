@@ -24,6 +24,7 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		# Decrypt SSH key so we can push release to GitHub
 		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in distribution/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d
 		chmod 600 ${HOME}/.ssh/id_rsa
+		cat ${HOME}/.ssh/id_rsa
 		
 		git config --global user.email "$GIT_EMAIL"
 		git config --global user.name "$GIT_USER"
