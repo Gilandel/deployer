@@ -36,14 +36,18 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		
 		# Prepare and release
 		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS}
-		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true"
 		
-		# Merge the release branch with master
-		git fetch origin +master:master
-		git checkout master
-		git merge release
-		# git push origin master
-		git push git@github.com:${TRAVIS_REPO_SLUG}.git refs/heads/master:refs/heads/master
+		if [ $? -eq 0 ]; then
+			mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true"
+			
+			if [ $? -eq 0 ]; then
+				# Merge the release branch with master
+				git fetch origin +master:master
+				git checkout master
+				git merge release
+				git push git@github.com:${TRAVIS_REPO_SLUG}.git refs/heads/master:refs/heads/master
+			fi
+		fi
 	fi
 else
 	echo "Only build"
