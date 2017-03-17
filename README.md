@@ -1,14 +1,69 @@
-# A simple maven deployer
+# A simple maven deployer for Travis jobs
 
 Required properties (defined in Travis):
-- DEPLOYER_URL (ex: https://raw.githubusercontent.com/Gilandel/deployer/master)
-- ENCPRYPTED_KEY
+- DEPLOYER_URL: contains 4 files: (ex: https://raw.githubusercontent.com/Gilandel/deployer/master)
+  - pushingkey.enc: the private key used to push modified files after releasing
+  - pubring.gpg: the public key used to validate the jar signature
+  - secring.gpg.enc: the private key used to sign jar
+  - settings.xml: the maven user settings, where public repository is defined
+- ENCPRYPTED_KEY: 
 - ENCPRYPTED_IV
-- GIT_EMAIL
-- GIT_USER
-- OSSRH_JIRA_USERNAME
-- OSSRH_JIRA_PASSWORD
-- GROUP_ID_PATH (ex: fr/landel/utils)
+- GIT_EMAIL: Property used during the pushing of modified files after releasing
+- GIT_USER: Property used during the pushing of modified files after releasing
+- OSSRH_JIRA_USERNAME: OSSRH username injected into settings.xml
+- OSSRH_JIRA_PASSWORD: OSSRH password injected into settings.xml
+- GROUP_ID_PATH: the group identifier to clean on the travis cache (ex: fr/landel/utils)
+
+## Encrypt 
+
+For SSH key generation, follow [GITHUB tutorial](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
+
+Create gpg key:
+```
+gpg --gen-key
+```
+
+Add a revocation certificate:
+```
+gpg --output revoke.asc --gen-revoke gilles@landel.fr
+```
+
+Check if pair private/public is generated:
+```
+gpg --list-key
+-------------------------------
+pub   4096R/XXXXXXXX 2017-03-17
+uid                  Gilles Landel (tagarin) <gilles@landel.fr>
+sub   4096R/YYYYYYYY 2017-03-17
+```
+
+Export keys (for both use pub key identifier):
+```
+gpg --output secring.gpg --export-secret-key XXXXXXXX
+gpg --output pubring.gpg --export XXXXXXXX
+```
+
+Encode keys:
+```
+openssl aes-256-cbc -in "~/.ssh/id_rsa" -out "pushingkey.enc" -p -e
+```
+
+Keep the result (ENCPRYPTED_KEY=key, ENCPRYPTED_IV=iv):
+```
+salt=XXXXXXXXXXXXXXXX
+key=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+iv =XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+```
+
+Encode the second file:
+```
+openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in "./secring.gpg" -out "secring.gpg.enc" -p -e
+```
+
+Do not forget to distribute you public gpg signing key (pubring.gpg) on one of this server for example:
+- [keyserver.ubuntu.com](keyserver.ubuntu.com),
+- [pgp.mit.edu](pgp.mit.edu]),
+- [keyserver.pgp.com](keyserver.pgp.com).
 
 ## License
 See [main project license](https://github.com/Gilandel/utils/blob/master/LICENSE): Apache License, version 2.0

@@ -7,7 +7,7 @@ mkdir -p $DISTRIBUTION_HOME
 
 curl $DEPLOYER_URL/pubring.gpg -o $DISTRIBUTION_HOME/pubring.gpg
 curl $DEPLOYER_URL/pushingkey.enc -o $DISTRIBUTION_HOME/pushingkey.enc
-curl $DEPLOYER_URL/secring.gpg -o $DISTRIBUTION_HOME/secring.gpg
+curl $DEPLOYER_URL/secring.gpg.enc -o $DISTRIBUTION_HOME/secring.gpg.enc
 curl $DEPLOYER_URL/settings.xml -o $MVN_SETTINGS
 
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
@@ -23,6 +23,7 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		
 		# Decrypt SSH key so we can push release to GitHub
 		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in distribution/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d
+		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in distribution/secring.gpg.enc -out distribution/secring.gpg -d
 		chmod 600 ${HOME}/.ssh/id_rsa
 		
 		git config --global user.email "$GIT_EMAIL"
