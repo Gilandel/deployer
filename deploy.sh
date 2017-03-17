@@ -16,14 +16,17 @@ if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
 	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS}
 elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 	GIT_LAST_LOG=$(git log --format=%B -n 1)
+	
+	# Decrypt SSH key so we can sign artifact
+	openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/secring.gpg.enc -out $DISTRIBUTION_HOME/secring.gpg -d
+	
 	if test "${GIT_LAST_LOG#*\[maven-release-plugin\]}" != "$GIT_LAST_LOG"; then
 		echo "Do not release commits created by maven release plugin"
 	else
 		echo "Prepare and perform RELEASE"
 		
 		# Decrypt SSH key so we can push release to GitHub
-		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in distribution/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d
-		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in distribution/secring.gpg.enc -out distribution/secring.gpg -d
+		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d
 		chmod 600 ${HOME}/.ssh/id_rsa
 		
 		git config --global user.email "$GIT_EMAIL"
