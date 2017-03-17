@@ -25,7 +25,7 @@ gpg --gen-key
 
 Add a revocation certificate:
 ```
-gpg --output revoke.asc --gen-revoke gilles@landel.fr
+gpg --output revoke.asc --gen-revoke your@email.com
 ```
 
 Check if pair private/public is generated:
@@ -33,7 +33,7 @@ Check if pair private/public is generated:
 gpg --list-key
 -------------------------------
 pub   4096R/XXXXXXXX 2017-03-17
-uid                  Gilles Landel (tagarin) <gilles@landel.fr>
+uid                  Firstname Lastname (my comment) <your@email.com>
 sub   4096R/YYYYYYYY 2017-03-17
 ```
 
@@ -64,6 +64,14 @@ Do not forget to distribute you public gpg signing key (pubring.gpg) on one of t
 - [keyserver.ubuntu.com](keyserver.ubuntu.com),
 - [pgp.mit.edu](pgp.mit.edu]),
 - [keyserver.pgp.com](keyserver.pgp.com).
+
+## Use it
+
+In your Travis file:
+```
+after_success:
+  - curl https://raw.githubusercontent.com/Gilandel/deployer/master/deploy.sh | sh
+```
 
 ## License
 See [main project license](https://github.com/Gilandel/utils/blob/master/LICENSE): Apache License, version 2.0
