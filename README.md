@@ -60,10 +60,10 @@ Encode the second file:
 openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in "./secring.gpg" -out "secring.gpg.enc" -p -e
 ```
 
-Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of this server for example:
-- [keyserver.ubuntu.com](keyserver.ubuntu.com),
-- [pgp.mit.edu](pgp.mit.edu]),
-- [keyserver.pgp.com](keyserver.pgp.com).
+Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of these keys servers for example:
+- [keyserver.ubuntu.com](http://keyserver.ubuntu.com),
+- [pgp.mit.edu](http://pgp.mit.edu]),
+- [keyserver.pgp.com](http://keyserver.pgp.com).
 
 ## Use it
 
