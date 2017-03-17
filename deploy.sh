@@ -10,16 +10,15 @@ curl $DEPLOYER_URL/pushingkey.enc -o $DISTRIBUTION_HOME/pushingkey.enc
 curl $DEPLOYER_URL/secring.gpg.enc -o $DISTRIBUTION_HOME/secring.gpg.enc
 curl $DEPLOYER_URL/settings.xml -o $MVN_SETTINGS
 
+# Decrypt SSH key so we can sign artifact
+openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/secring.gpg.enc -out $DISTRIBUTION_HOME/secring.gpg -d
+
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
 	
 	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS}
 elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 	GIT_LAST_LOG=$(git log --format=%B -n 1)
-	
-	# Decrypt SSH key so we can sign artifact
-	openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/secring.gpg.enc -out $DISTRIBUTION_HOME/secring.gpg -d
-	chmod 600 $DISTRIBUTION_HOME/secring.gpg
 	
 	if test "${GIT_LAST_LOG#*\[maven-release-plugin\]}" != "$GIT_LAST_LOG"; then
 		echo "Do not release commits created by maven release plugin"
