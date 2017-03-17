@@ -19,6 +19,7 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 	
 	# Decrypt SSH key so we can sign artifact
 	openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/secring.gpg.enc -out $DISTRIBUTION_HOME/secring.gpg -d
+	chmod 600 $DISTRIBUTION_HOME/secring.gpg
 	
 	if test "${GIT_LAST_LOG#*\[maven-release-plugin\]}" != "$GIT_LAST_LOG"; then
 		echo "Do not release commits created by maven release plugin"
@@ -56,3 +57,5 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 else
 	echo "Only build"
 fi
+
+exit $?
