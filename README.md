@@ -43,7 +43,7 @@ gpg --output secring.gpg --export-secret-key XXXXXXXX
 gpg --output pubring.gpg --export XXXXXXXX
 ```
 
-Encode keys:
+Encode GITHUB keys:
 ```
 openssl aes-256-cbc -in "~/.ssh/id_rsa" -out "pushingkey.enc" -p -e
 ```
