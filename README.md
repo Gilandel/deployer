@@ -8,11 +8,10 @@ Required properties (defined in Travis):
   - settings.xml: the maven user settings, where public repository is defined
 - ENCPRYPTED_KEY: the encryption key
 - ENCPRYPTED_IV: the encryption initilization vector
-- GIT_EMAIL: Property used during the pushing of modified files after releasing
-- GIT_USER: Property used during the pushing of modified files after releasing
-- OSSRH_JIRA_USERNAME: OSSRH username injected into settings.xml
-- OSSRH_JIRA_PASSWORD: OSSRH password injected into settings.xml
-- GROUP_ID_PATH: the group identifier to clean on the travis cache (ex: fr/landel/utils)
+- GIT_EMAIL: Email used during the git push after releasing
+- GIT_USER: User name used during the git push after releasing
+- OSSRH_JIRA_USERNAME: OSS Repository Hosting username injected into settings.xml to stage the artifacts
+- OSSRH_JIRA_PASSWORD: OSS Repository Hosting password injected into settings.xml to stage the artifacts
 
 ## Encrypt 
 
