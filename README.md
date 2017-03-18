@@ -6,8 +6,8 @@ Required properties (defined in Travis):
   - pubring.gpg: the public key used to validate the jar signature
   - secring.gpg.enc: the private key used to sign jar
   - settings.xml: the maven user settings, where public repository is defined
-- ENCPRYPTED_KEY: 
-- ENCPRYPTED_IV
+- ENCPRYPTED_KEY: the encryption key
+- ENCPRYPTED_IV: the encryption initilization vector
 - GIT_EMAIL: Property used during the pushing of modified files after releasing
 - GIT_USER: Property used during the pushing of modified files after releasing
 - OSSRH_JIRA_USERNAME: OSSRH username injected into settings.xml
