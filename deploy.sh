@@ -5,15 +5,20 @@ MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 
 mkdir -p ${DISTRIBUTION_HOME}
 
-curl ${DEPLOYER_URL}/pubring.gpg -o ${DISTRIBUTION_HOME}/pubring.gpg
-curl ${DEPLOYER_URL}/pushingkey.enc -o ${DISTRIBUTION_HOME}/pushingkey.enc
-curl ${DEPLOYER_URL}/secring.gpg.enc -o ${DISTRIBUTION_HOME}/secring.gpg.enc
-curl ${DEPLOYER_URL}/settings.xml -o ${MVN_SETTINGS}
+function download {
+	curl ${DEPLOYER_URL}/$1 -o ${DISTRIBUTION_HOME}/$1
+	if [ ! -f ${DISTRIBUTION_HOME}/$1 ]; then echo "ERROR: Download ${DEPLOYER_URL}/$1 to ${DISTRIBUTION_HOME}/$1"; exit 1; fi
+}
+
+download pushingkey.enc;
+download pubring.gpg;
+download secring.gpg.enc;
+download settings.xml;
 
 # Decrypt SSH key so we can sign artifact
 openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/secring.gpg.enc -out ${DISTRIBUTION_HOME}/secring.gpg -d
 
-if [ $? -ne 0 ]; then echo "ERROR: Decrypting secring.gpg.enc"; exit $?; fi
+if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
@@ -31,7 +36,7 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d && \
 		chmod 600 ${HOME}/.ssh/id_rsa
 		
-		if [ $? -ne 0 ]; then echo "ERROR: Decrypting pushingkey.enc"; exit $?; fi
+		if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
 		
 		git config --global user.email "$GIT_EMAIL" && \
 		git config --global user.name "$GIT_USER"
