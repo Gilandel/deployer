@@ -3,15 +3,17 @@
 DISTRIBUTION_HOME=${HOME}/build/${TRAVIS_REPO_SLUG}/distribution
 MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 
-mkdir -p $DISTRIBUTION_HOME
+mkdir -p ${DISTRIBUTION_HOME}
 
-curl $DEPLOYER_URL/pubring.gpg -o $DISTRIBUTION_HOME/pubring.gpg
-curl $DEPLOYER_URL/pushingkey.enc -o $DISTRIBUTION_HOME/pushingkey.enc
-curl $DEPLOYER_URL/secring.gpg.enc -o $DISTRIBUTION_HOME/secring.gpg.enc
-curl $DEPLOYER_URL/settings.xml -o $MVN_SETTINGS
+curl ${DEPLOYER_URL}/pubring.gpg -o ${DISTRIBUTION_HOME}/pubring.gpg
+curl ${DEPLOYER_URL}/pushingkey.enc -o ${DISTRIBUTION_HOME}/pushingkey.enc
+curl ${DEPLOYER_URL}/secring.gpg.enc -o ${DISTRIBUTION_HOME}/secring.gpg.enc
+curl ${DEPLOYER_URL}/settings.xml -o ${MVN_SETTINGS}
 
 # Decrypt SSH key so we can sign artifact
-openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/secring.gpg.enc -out $DISTRIBUTION_HOME/secring.gpg -d
+openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/secring.gpg.enc -out ${DISTRIBUTION_HOME}/secring.gpg -d
+
+if [ $? -ne 0 ]; then echo "ERROR: Decrypting secring.gpg.enc"; exit $?; fi
 
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
@@ -26,10 +28,12 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		echo "Prepare and perform RELEASE"
 		
 		# Decrypt SSH key so we can push release to GitHub
-		openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in $DISTRIBUTION_HOME/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d
+		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d && \
 		chmod 600 ${HOME}/.ssh/id_rsa
 		
-		git config --global user.email "$GIT_EMAIL"
+		if [ $? -ne 0 ]; then echo "ERROR: Decrypting pushingkey.enc"; exit $?; fi
+		
+		git config --global user.email "$GIT_EMAIL" && \
 		git config --global user.name "$GIT_USER"
 		
 		# Travis checkout the commit as detached head (which is normally what we
@@ -38,20 +42,23 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		# to the release branch, but in that case we will have problem anyway.
 		git checkout release
 		
-		# Prepare and release
-		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS}
+		if [ $? -ne 0 ]; then echo "ERROR: Git checkout release"; exit $?; fi
 		
-		if [ $? -eq 0 ]; then
-			mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true"
+		# Prepare
+		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS}
 			
-			if [ $? -eq 0 ]; then
-				# Merge the release branch with master
-				git fetch origin +master:master
-				git checkout master
-				git merge release
-				git push git@github.com:${TRAVIS_REPO_SLUG}.git refs/heads/master:refs/heads/master
-			fi
-		fi
+		if [ $? -ne 0 ]; then echo "ERROR: Maven prepare"; exit $?; fi
+		
+		# Release
+		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true"
+		
+		if [ $? -ne 0 ]; then echo "ERROR: Maven release"; exit $?; fi
+		
+		# Merge the release branch with master
+		git fetch origin +master:master && \
+		git checkout master && \
+		git merge release && \
+		git push git@github.com:${TRAVIS_REPO_SLUG}.git refs/heads/master:refs/heads/master
 	fi
 else
 	echo "Only build"
