@@ -56,7 +56,7 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		if [ $? -ne 0 ]; then echo "ERROR: Maven prepare"; exit $?; fi
 		
 		# Release
-		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true"
+		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true --settings ${MVN_SETTINGS}"
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Maven release"; exit $?; fi
 		
