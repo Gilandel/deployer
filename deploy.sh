@@ -21,10 +21,15 @@ openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION
 
 if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
+DEBUG_PARAM=
+if [ "$DEBUG" = 'true' ]; then
+	DEBUG_PARAM="-e -X"
+fi
+
 if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
 	
-	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS}
+	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS} ${DEBUG_PARAM}
 elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 	GIT_LAST_LOG=$(git log --format=%B -n 1)
 	
@@ -51,12 +56,12 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		if [ $? -ne 0 ]; then echo "ERROR: Git checkout release"; exit $?; fi
 		
 		# Prepare
-		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS}
+		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS} ${DEBUG_PARAM}
 			
 		if [ $? -ne 0 ]; then echo "ERROR: Maven prepare"; exit $?; fi
 		
 		# Release
-		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true"
+		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true" ${DEBUG_PARAM}
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Maven release"; exit $?; fi
 		
