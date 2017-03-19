@@ -12,6 +12,7 @@ Required properties (defined in Travis):
 - GIT_USER: User name used during the git push after releasing
 - OSSRH_JIRA_USERNAME: OSS Repository Hosting username injected into settings.xml to stage the artifacts
 - OSSRH_JIRA_PASSWORD: OSS Repository Hosting password injected into settings.xml to stage the artifacts
+- DEBUG: if set to true, inject '-e -X' params into Maven commands (optional parameter)
 
 ## Encrypt 
 
