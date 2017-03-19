@@ -6,6 +6,7 @@ MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 mkdir -p ${DISTRIBUTION_HOME}
 
 function download {
+	echo "Download ${DEPLOYER_URL}/$1"
 	curl ${DEPLOYER_URL}/$1 -o ${DISTRIBUTION_HOME}/$1
 	if [ ! -f ${DISTRIBUTION_HOME}/$1 ]; then echo "ERROR: Download ${DEPLOYER_URL}/$1 to ${DISTRIBUTION_HOME}/$1"; exit 1; fi
 }
