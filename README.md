@@ -70,7 +70,7 @@ Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of 
 In your Travis file:
 ```
 after_success:
-  - curl https://raw.githubusercontent.com/Gilandel/deployer/master/deploy.sh | sh
+  - curl https://raw.githubusercontent.com/Gilandel/deployer/master/deploy.sh | bash
 ```
 
 ## License
