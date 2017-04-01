@@ -10,11 +10,11 @@ tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz
 
 # clone or pull codacity coverage reporter
 if [ -e "$CCR_DIRECTORY/codacy-coverage-reporter-assembly.jar" ]; then
-	git clone https://github.com/codacy/codacy-coverage-reporter $CCR_DIRECTORY
-	cd $CCR_DIRECTORY
-else
 	cd $CCR_DIRECTORY
 	git pull
+else
+	git clone https://github.com/codacy/codacy-coverage-reporter $CCR_DIRECTORY
+	cd $CCR_DIRECTORY
 fi
 
 # build codacity coverage reporter
