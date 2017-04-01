@@ -10,7 +10,7 @@ tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz
 
 # clone and build codacity coverage reporter
 mkdir -p $CCR_DIRECTORY
-git clone git@github.com:codacy/codacy-coverage-reporter.git $CCR_DIRECTORY
+git clone https://github.com/codacy/codacy-coverage-reporter $CCR_DIRECTORY
 
 # build codacity coverage reporter
 cd $CCR_DIRECTORY
