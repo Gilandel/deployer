@@ -67,11 +67,48 @@ Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of 
 
 ## Use it
 
-In your Travis file:
-```
+In your Travis file `.travis.yml`:
+```yaml
 after_success:
-  - curl https://raw.githubusercontent.com/Gilandel/deployer/master/deploy.sh | bash
+  # Stage artifact to Sonatype OSSRH
+  - curl $DEPLOYER_URL/deploy.sh | bash
+```
+
+## Codacity coverage reporter
+
+In your Travis file `.travis.yml`, add SBT and Codacity coverage reporter caches and cleanup:
+```yaml
+cache:
+  directories:
+  # SBT
+  - $HOME/.ivy2/cache
+  # Maven
+  - $HOME/.m2
+  # SBT binaries
+  - $HOME/sbt
+  # Code coverage
+  - $HOME/ccr
+
+before_cache:
+  # Cleanup the cached directories to avoid unnecessary cache updates
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
+```
+
+Add Codacity reporter install step (install sbt + build reporter):
+```yaml
+before_install:
+  # Install Codacity coverage reporter (get SBT + build reporter)
+  - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | bash
+```
+
+Call the reporter and cleanup:
+```yaml
+after_success:
+  # Call Codacity coverage reporter
+  - java -cp $HOME/ccr/codacy-coverage-reporter-assembly.jar com.codacy.CodacyCoverageReporter -l Java -r target/cobertura/coverage.xml
+  - curl $DEPLOYER_URL/codacity-coverage-reporter-clean.sh | bash
 ```
 
 ## License
-See [main project license](https://github.com/Gilandel/utils/blob/master/LICENSE): Apache License, version 2.0
+Apache License, version 2.0
