@@ -70,7 +70,7 @@ Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of 
 In your Travis file `.travis.yml`:
 ```yaml
 after_success:
-  # Stage artifact to Sonatype OSSRH
+  # Stage artifacts
   - curl $DEPLOYER_URL/deploy.sh | bash
 ```
 
@@ -86,7 +86,7 @@ cache:
   - $HOME/.m2
   # SBT binaries
   - $HOME/sbt
-  # Code coverage
+  # Codacity coverage reporter repository
   - $HOME/ccr
 
 before_cache:
