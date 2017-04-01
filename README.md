@@ -95,10 +95,10 @@ before_cache:
   - find $HOME/.sbt        -name "*.lock"               -print -delete
 ```
 
-Add Codacity reporter install step (install sbt + build reporter):
+Add Codacity reporter install step:
 ```yaml
 before_install:
-  # Install Codacity coverage reporter (get SBT + build reporter)
+  # Install Codacity coverage reporter (install SBT + build reporter)
   - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | bash
 ```
 
