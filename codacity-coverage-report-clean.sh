@@ -1,0 +1,3 @@
+CCR_DIRECTORY=$HOME/ccr
+
+rm -rf $CCR_DIRECTORY
