@@ -6,12 +6,7 @@ CCR_DIRECTORY=$HOME/ccr
 # install sbt
 mkdir -p $SBT_DIRECTORY
 curl -L https://dl.bintray.com/sbt/native-packages/sbt/$SBT_VERSION/sbt-$SBT_VERSION.tgz > $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz
-tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz
-
-pwd
-ls -lth
-ls -lth $SBT_DIRECTORY
-ls -lth $SBT_HOME
+tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -C $SBT_DIRECTORY
 
 # clone or pull codacity coverage reporter
 if [ -e "$CCR_DIRECTORY/codacy-coverage-reporter-assembly.jar" ]; then
