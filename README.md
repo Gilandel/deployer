@@ -97,7 +97,7 @@ before_cache:
 
 Add Codacity reporter install step:
 ```yaml
-before_install:
+install:
   # Install Codacity coverage reporter (install SBT + build reporter)
   - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | bash
 ```
