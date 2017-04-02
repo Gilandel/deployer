@@ -9,7 +9,7 @@ curl -L https://dl.bintray.com/sbt/native-packages/sbt/$SBT_VERSION/sbt-$SBT_VER
 tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -C $SBT_DIRECTORY
 
 # clone or pull codacity coverage reporter
-if [ -e "$CCR_DIRECTORY/codacy-coverage-reporter-assembly.jar" ]; then
+if [ -d "$CCR_DIRECTORY/.git" ]; then
 	cd $CCR_DIRECTORY
 	git pull
 else
