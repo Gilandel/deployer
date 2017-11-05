@@ -76,38 +76,18 @@ after_success:
 
 ## Codacity coverage reporter
 
-In your Travis file `.travis.yml`, add SBT and Codacity coverage reporter caches and cleanup:
-```yaml
-cache:
-  directories:
-  # SBT
-  - $HOME/.ivy2/cache
-  # Maven
-  - $HOME/.m2
-  # SBT binaries
-  - $HOME/sbt
-  # Codacity coverage reporter repository
-  - $HOME/ccr
-
-before_cache:
-  # Cleanup the cached directories to avoid unnecessary cache updates
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
-  - find $HOME/.sbt        -name "*.lock"               -print -delete
-```
-
-Add Codacity reporter install step:
+In your Travis file `.travis.yml`, add Codacity reporter install step:
 ```yaml
 install:
-  # Install Codacity coverage reporter (install SBT + build reporter)
-  - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | bash
+  # Install Codacity coverage reporter (install build reporter)
+  - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | sudo sh
 ```
 
 Call the reporter and cleanup:
 ```yaml
 after_success:
   # Call Codacity coverage reporter
-  - java -cp $HOME/ccr/codacy-coverage-reporter-assembly.jar com.codacy.CodacyCoverageReporter -l Java -r target/cobertura/coverage.xml
-  - curl $DEPLOYER_URL/codacity-coverage-reporter-clean.sh | bash
+  - curl $DEPLOYER_URL/codacity-coverage-reporter-runner.sh | sh -l Java -r target/site/jacoco/jacoco.xml
 ```
 
 ## License
