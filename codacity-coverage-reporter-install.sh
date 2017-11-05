@@ -1,22 +1,7 @@
-SBT_VERSION=1.0.3
-SBT_DIRECTORY=$HOME/sbt
-SBT_HOME=$SBT_DIRECTORY/sbt/bin
-CCR_DIRECTORY=$HOME/ccr
+#!/usr/bin/env bash
 
-# install sbt
-mkdir -p $SBT_DIRECTORY
-curl -o $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -L https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz
-tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -C $SBT_DIRECTORY
+# install JQ a JSON processor
+apt-get install jq
 
-# clone or pull codacity coverage reporter
-if [ -d "$CCR_DIRECTORY/.git" ]; then
-	cd $CCR_DIRECTORY
-	git pull
-else
-	git clone https://github.com/codacy/codacy-coverage-reporter $CCR_DIRECTORY
-	cd $CCR_DIRECTORY
-fi
-
-# build codacity coverage reporter
-$SBT_HOME/sbt assembly
-mv -f $CCR_DIRECTORY/target/codacy-coverage-reporter-assembly-*.jar $CCR_DIRECTORY/codacy-coverage-reporter-assembly.jar
+# download the latest version of Codacity reporter
+wget -O ~/codacy-coverage-reporter-assembly.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)

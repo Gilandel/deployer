@@ -1,4 +1,4 @@
-CCR_DIRECTORY=$HOME/ccr
+#!/usr/bin/env bash
 
-rm -rf $CCR_DIRECTORY/target
-rm -f $CCR_DIRECTORY/codacy-coverage-reporter-assembly.jar
+# remove the Codacity reporter
+rm -f ~/codacy-coverage-reporter-assembly.jar
