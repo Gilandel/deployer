@@ -5,7 +5,7 @@ CCR_DIRECTORY=$HOME/ccr
 
 # install sbt
 mkdir -p $SBT_DIRECTORY
-curl -L https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz
+curl -o $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -L https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz
 tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -C $SBT_DIRECTORY
 
 # clone or pull codacity coverage reporter
