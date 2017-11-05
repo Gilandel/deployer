@@ -1,11 +1,11 @@
-SBT_VERSION=0.13.13
+SBT_VERSION=1.0.2
 SBT_DIRECTORY=$HOME/sbt
 SBT_HOME=$SBT_DIRECTORY/sbt-launcher-packaging-$SBT_VERSION/bin
 CCR_DIRECTORY=$HOME/ccr
 
 # install sbt
 mkdir -p $SBT_DIRECTORY
-curl -L https://dl.bintray.com/sbt/native-packages/sbt/$SBT_VERSION/sbt-$SBT_VERSION.tgz > $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz
+curl -L https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz
 tar -xzvf $SBT_DIRECTORY/sbt-$SBT_VERSION.tgz -C $SBT_DIRECTORY
 
 # clone or pull codacity coverage reporter
