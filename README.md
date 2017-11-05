@@ -87,7 +87,7 @@ Call the reporter and cleanup:
 ```yaml
 after_success:
   # Call Codacity coverage reporter
-  - curl $DEPLOYER_URL/codacity-coverage-reporter-runner.sh > ~/ccr.sh && sh ~/ccr.sh -l Java -r target/site/jacoco/jacoco.xml
+  - curl $DEPLOYER_URL/codacity-coverage-reporter-runner.sh | bash -s -- -l Java -r target/site/jacoco/jacoco.xml
 ```
 
 ## License
