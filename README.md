@@ -74,11 +74,15 @@ after_success:
   - curl $DEPLOYER_URL/deploy.sh | bash
 ```
 
-Don't forget to add distributionManagement, licenses... parts in your pom.xml, example: [utils project pom](https://github.com/Gilandel/utils/blob/master/pom.xml)
+Don't forget to add distributionManagement, licenses... parts in your pom.xml, example: [utils project pom](https://github.com/Gilandel/utils/blob/master/pom.xml).
+
 
 The logic is based on two branches, master (the develop branch) and release (the branch to release).
-At each push on master branch, a snapshot will be deploy to OSSRH https://oss.sonatype.org/content/repositories/snapshots
-At each merge on release branch, a release is launched and pushed to https://oss.sonatype.org/service/local/staging/deploy/maven2/ (the master branch is automatically merged post release).
+
+At each push on master branch, a snapshot will be deploy to OSSRH [https://oss.sonatype.org/content/repositories/snapshots](https://oss.sonatype.org/content/repositories/snapshots).
+
+At each merge on release branch, a release is launched and pushed to [https://oss.sonatype.org/service/local/staging/deploy/maven2/](https://oss.sonatype.org/service/local/staging/deploy/maven2/) (the master branch is automatically merged post release).
+
 After the first stage is completed and checked by the oss team, the release will be deployed to central maven repository (around 2 hours after).
 
 ## Codacity coverage reporter
