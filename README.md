@@ -7,14 +7,14 @@ Required properties (defined in Travis):
   - secring.gpg.enc: the private key used to sign jar
   - settings.xml: the maven user settings, where public repository is defined
 - ENCPRYPTED_KEY: the encryption key
-- ENCPRYPTED_IV: the encryption initilization vector
+- ENCPRYPTED_IV: the encryption initialization vector
 - GIT_EMAIL: Email used during the git push after releasing
 - GIT_USER: User name used during the git push after releasing
-- OSSRH_JIRA_USERNAME: OSS Repository Hosting username injected into settings.xml to stage the artifacts
+- OSSRH_JIRA_USERNAME: OSS Repository Hosting user's name injected into settings.xml to stage the artifacts
 - OSSRH_JIRA_PASSWORD: OSS Repository Hosting password injected into settings.xml to stage the artifacts
-- DEBUG: if set to true, inject '-e -X' params into Maven commands (optional parameter)
+- DEBUG: if set to true, inject '-e -X' parameters into Maven commands (optional parameter)
 
-## Encrypt 
+## Prepare the encryption keys and signatures
 
 For SSH key generation, follow [GITHUB tutorial](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/)
 
@@ -65,14 +65,21 @@ Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of 
 - [pgp.mit.edu](http://pgp.mit.edu),
 - [keyserver.pgp.com](http://keyserver.pgp.com).
 
-## Use it
+## How to deploy to Maven Central
 
-In your Travis file `.travis.yml`:
+In your Travis file `.travis.yml`, add the following lines (example: [utils-assertor .travis.yml](https://github.com/Gilandel/utils-assertor/blob/master/.travis.yml)):
 ```yaml
 after_success:
   # Stage artifacts
   - curl $DEPLOYER_URL/deploy.sh | bash
 ```
+
+Don't forget to add distributionManagement, licenses... parts in your pom.xml, example: [utils project pom](https://github.com/Gilandel/utils/blob/master/pom.xml)
+
+The logic is based on two branches, master (the develop branch) and release (the branch to release).
+At each push on master branch, a snapshot will be deploy to OSSRH https://oss.sonatype.org/content/repositories/snapshots
+At each merge on release branch, a release is launched and pushed to https://oss.sonatype.org/service/local/staging/deploy/maven2/ (the master branch is automatically merged post release).
+After the first stage is completed and checked by the oss team, the release will be deployed to central maven repository (around 2 hours after).
 
 ## Codacity coverage reporter
 
@@ -80,7 +87,7 @@ In your Travis file `.travis.yml`, add Codacity reporter install step:
 ```yaml
 install:
   # Install Codacity coverage reporter (install build reporter)
-  - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | sudo sh
+  - curl $DEPLOYER_URL/codacity-coverage-reporter-install.sh | sudo bash
 ```
 
 Call the reporter and cleanup:
