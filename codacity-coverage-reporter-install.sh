@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
 # install JQ a JSON processor
-apt install jq
+apt-get -y install jq
 
 # download the latest version of Codacity reporter
-wget -O ~/codacy-coverage-reporter-assembly.jar $(curl -s https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
+data=$(curl -s https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest)
+echo $data
+echo $(echo $data | jq -r .assets[0].browser_download_url)
+wget -O ~/codacy-coverage-reporter-assembly.jar $(echo $data | jq -r .assets[0].browser_download_url)
 
 # Download missing dependencies
 wget -O ~/activation.jar https://maven.repository.redhat.com/ga/javax/activation/activation/1.1.1.redhat-5/activation-1.1.1.redhat-5.jar
