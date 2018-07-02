@@ -11,3 +11,6 @@ echo $data
 
 # download the jar
 wget -O ~/codacy-coverage-reporter-assembly.jar $(echo $data | jq -r .assets[0].browser_download_url)
+
+# Download missing dependencies
+wget -O ~/activation.jar https://maven.repository.redhat.com/ga/javax/activation/activation/1.1.1.redhat-5/activation-1.1.1.redhat-5.jar
