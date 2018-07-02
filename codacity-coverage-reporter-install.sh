@@ -6,7 +6,6 @@ apt-get -y install jq
 # download the latest version of Codacity reporter
 data=$(curl -s https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest)
 echo $data
-echo $(echo $data | jq -r .assets[0].browser_download_url)
 wget -O ~/codacy-coverage-reporter-assembly.jar $(echo $data | jq -r .assets[0].browser_download_url)
 
 # Download missing dependencies
