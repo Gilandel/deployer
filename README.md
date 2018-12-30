@@ -43,6 +43,12 @@ gpg --output secring.gpg --export-secret-key XXXXXXXX
 gpg --output pubring.gpg --export XXXXXXXX
 ```
 
+Export keys in ASCII (for both use pub key identifier):
+```
+gpg --export -a XXXXXXXX > pubring.asc
+gpg --export-secret-keys -a XXXXXXXX > secring.asc
+```
+
 Encode GITHUB keys:
 ```
 openssl aes-256-cbc -in "~/.ssh/id_rsa" -out "pushingkey.enc" -p -e
@@ -60,7 +66,7 @@ Encode the second file:
 openssl aes-256-cbc -K $ENCPRYPTED_KEY -iv $ENCPRYPTED_IV -in "./secring.gpg" -out "secring.gpg.enc" -p -e
 ```
 
-Do not forgot to distribute your public gpg signing key (pubring.gpg) on one of these keys servers for example:
+Do not forgot to distribute your public gpg signing key (pubring.gpg or pubring.asc) on one of these keys servers for example:
 - [keyserver.ubuntu.com](http://keyserver.ubuntu.com),
 - [pgp.mit.edu](http://pgp.mit.edu),
 - [keyserver.pgp.com](http://keyserver.pgp.com).
