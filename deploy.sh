@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-DISTRIBUTION_HOME=${HOME}/build/${TRAVIS_REPO_SLUG}/distribution
+DISTRIBUTION_HOME=${HOME:-.}/build/${REPO_SLUG}/distribution
 MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 
 mkdir -p ${DISTRIBUTION_HOME}
@@ -26,11 +26,11 @@ if [ "$DEBUG" = 'true' ]; then
 	DEBUG_PARAM="-e -X"
 fi
 
-if [ "$TRAVIS_BRANCH" = 'master' ] && [ "$TRAVIS_PULL_REQUEST" = 'false' ]; then
+if [ "$BRANCH" = 'master' ] && [ "$PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
 	
 	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS} ${DEBUG_PARAM}
-elif [ "$TRAVIS_BRANCH" = 'release' ]; then
+elif [ "$BRANCH" = 'release' ]; then
 	GIT_LAST_LOG=$(git log --format=%B -n 1)
 	
 	if test "${GIT_LAST_LOG#*\[maven-release-plugin\]}" != "$GIT_LAST_LOG"; then
@@ -69,7 +69,7 @@ elif [ "$TRAVIS_BRANCH" = 'release' ]; then
 		git fetch origin +master:master && \
 		git checkout master && \
 		git merge release && \
-		git push git@github.com:${TRAVIS_REPO_SLUG}.git refs/heads/master:refs/heads/master
+		git push git@github.com:${REPO_SLUG}.git refs/heads/master:refs/heads/master
 	fi
 else
 	echo "Only build"
