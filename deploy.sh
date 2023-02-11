@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+export GPG_TTY=$(tty)
+
 HOME=${GITHUB_WORKSPACE}
 GIT_USER=${GITHUB_REPOSITORY_OWNER}
 REPO_SLUG=${GITHUB_REPOSITORY}
@@ -25,14 +27,15 @@ download settings.xml;
 # Decrypt SSH key so we can sign artifact
 openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/secring.gpg.enc -out ${DISTRIBUTION_HOME}/secring.gpg -d
 
+gpg --import pubring.gpg
+gpg --import secring.gpg
+
 if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
 DEBUG_PARAM=
 if [ "$DEBUG" = 'true' ]; then
 	DEBUG_PARAM="-e -X"
 fi
-
-export GPG_TTY=$(tty)
 
 if [ "$BRANCH" = 'master' ] && [ "$PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
