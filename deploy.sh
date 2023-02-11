@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 HOME=${GITHUB_WORKSPACE}
+GIT_USER=${GITHUB_REPOSITORY_OWNER}
 REPO_SLUG=${GITHUB_REPOSITORY}
 BRANCH=${GITHUB_REF_NAME}
 if [[ "$GITHUB_REF" =~ ^refs\/pull ]]; then PULL_REQUEST="true"; else PULL_REQUEST="false"; fi
