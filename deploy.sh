@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-DISTRIBUTION_HOME=${HOME:-.}/build/${REPO_SLUG}/distribution
+HOME=${GITHUB_WORKSPACE}
+REPO_SLUG=${GITHUB_REPOSITORY}
+BRANCH=${GITHUB_REF_NAME}
+if [[ "$GITHUB_REF" =~ ^refs\/pull ]]; then PULL_REQUEST="true"; else PULL_REQUEST="false"; fi
+
+DISTRIBUTION_HOME=${HOME}/build/${REPO_SLUG}/distribution
 MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
 
 mkdir -p ${DISTRIBUTION_HOME}
