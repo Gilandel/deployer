@@ -4,7 +4,7 @@ HOME=${GITHUB_WORKSPACE}
 GIT_USER=${GITHUB_REPOSITORY_OWNER}
 REPO_SLUG=${GITHUB_REPOSITORY}
 BRANCH=${GITHUB_REF_NAME}
-if [[ "$GITHUB_REF" =~ ^refs\/pull ]]; then PULL_REQUEST="true"; else PULL_REQUEST="false"; fi
+if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then PULL_REQUEST="true"; else PULL_REQUEST="false"; fi
 
 DISTRIBUTION_HOME=${HOME}/build/${REPO_SLUG}/distribution
 MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
@@ -31,6 +31,8 @@ DEBUG_PARAM=
 if [ "$DEBUG" = 'true' ]; then
 	DEBUG_PARAM="-e -X"
 fi
+
+export GPG_TTY=$(tty)
 
 if [ "$BRANCH" = 'master' ] && [ "$PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
