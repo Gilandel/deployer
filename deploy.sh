@@ -19,7 +19,7 @@ echo "Prepare temporary directory: mkdir ${TEMP}"
 mkdir -p ${TEMP}
 
 echo "Prepare temporary directory: mkdir ${HOME}/.ssh"
-mkdir -p ${HOME}/.ssh && chmod -R 600 ${HOME}/.ssh
+mkdir -p ${HOME}/.ssh
 
 function download {
 	echo "Download ${DEPLOYER_URL}/$1"
@@ -63,7 +63,7 @@ elif [ "$BRANCH" = 'release' ]; then
 	if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
 	
 	echo 'Import pushing key'
-	ssh-add ${TEMP}/pushing.key
+	ssh-add ${TEMP}/pushing.key && chmod -R 600 ${HOME}/.ssh
 	
 	echo 'Configure GIT'
 	git config --global user.email "$GIT_EMAIL" && \
