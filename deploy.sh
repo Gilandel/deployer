@@ -52,12 +52,15 @@ elif [ "$BRANCH" = 'release' ]; then
 		echo "Prepare and perform RELEASE"
 		
 		echo 'Decrypt SSH key so we can push release to GitHub'
-		mkdir -p ~/.ssh
-		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ~/.ssh/id_rsa -d && \
-		chmod 600 ~/.ssh/id_rsa
+		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ${DISTRIBUTION_HOME}/pushing.key -d && \
+		chmod 600 ${DISTRIBUTION_HOME}/pushing.key
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
 		
+		echo 'Import pushing key'
+		ssh-add ${DISTRIBUTION_HOME}/pushing.key
+		
+		echo 'Configure GIT'
 		git config --global user.email "$GIT_EMAIL" && \
 		git config --global user.name "$GIT_USER"
 		
@@ -65,21 +68,25 @@ elif [ "$BRANCH" = 'release' ]; then
 		# want) but maven release plugin does not like working in detached head
 		# mode. This might be a problem if other commits have already been pushed
 		# to the release branch, but in that case we will have problem anyway.
+		echo 'Checkout and release'
 		git checkout release
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Git checkout release"; exit $?; fi
 		
 		# Prepare
+		echo 'Prepare release'
 		mvn release:clean release:prepare -B -P sign,build-extras --settings ${MVN_SETTINGS} ${DEBUG_PARAM}
 			
 		if [ $? -ne 0 ]; then echo "ERROR: Maven prepare"; exit $?; fi
 		
 		# Release
+		echo 'Release'
 		mvn release:perform -B -P sign,build-extras --settings ${MVN_SETTINGS} -Darguments="-DskipTests=true" ${DEBUG_PARAM}
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Maven release"; exit $?; fi
 		
 		# Merge the release branch with master
+		echo 'Merge release into master'
 		git fetch origin +master:master && \
 		git checkout master && \
 		git merge release && \
