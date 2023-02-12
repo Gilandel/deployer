@@ -12,7 +12,10 @@ if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then PULL_REQUEST="true"; else PUL
 MVN_SETTINGS=${TEMP}/settings.xml
 
 echo "Prepare temporary directory: mkdir ${TEMP}"
-mkdir -p ${RUNNER_TEMP}/.ssh
+mkdir -p ${TEMP}
+
+echo "Prepare temporary directory: mkdir ${HOME}/.ssh"
+mkdir -p ${HOME}/.ssh && chmod -R 600 ${HOME}/.ssh
 
 function download {
 	echo "Download ${DEPLOYER_URL}/$1"
@@ -48,6 +51,20 @@ if [ "$BRANCH" = 'master' ] && [ "$PULL_REQUEST" = 'false' ]; then
 	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS} ${DEBUG_PARAM}
 	
 elif [ "$BRANCH" = 'release' ]; then
+
+	echo 'Decrypt SSH key so we can push release to GIT repository'
+	openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/pushingkey.enc -out ${TEMP}/pushing.key -d && \
+	chmod 600 ${TEMP}/pushing.key
+	
+	if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
+	
+	echo 'Import pushing key'
+	ssh-add ${TEMP}/pushing.key
+	
+	echo 'Configure GIT'
+	git config --global user.email "$GIT_EMAIL" && \
+	git config --global user.name "$GIT_USER"
+
 	GIT_LAST_LOG=$(git log --format=%B -n 1)
 	
 	if test "${GIT_LAST_LOG#*\[maven-release-plugin\]}" != "$GIT_LAST_LOG"; then
@@ -55,20 +72,7 @@ elif [ "$BRANCH" = 'release' ]; then
 	else
 		echo "Prepare and perform RELEASE"
 		
-		echo 'Decrypt SSH key so we can push release to GitHub'
-		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/pushingkey.enc -out ${TEMP}/pushing.key -d && \
-		chmod 600 ${TEMP}/pushing.key
-		
-		if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
-		
-		echo 'Import pushing key'
-		ssh-add ${TEMP}/pushing.key
-		
-		echo 'Configure GIT'
-		git config --global user.email "$GIT_EMAIL" && \
-		git config --global user.name "$GIT_USER"
-		
-		# Travis checkout the commit as detached head (which is normally what we
+		# Pipeline checkout the commit as detached head (which is normally what we
 		# want) but maven release plugin does not like working in detached head
 		# mode. This might be a problem if other commits have already been pushed
 		# to the release branch, but in that case we will have problem anyway.
