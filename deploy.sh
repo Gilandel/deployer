@@ -2,21 +2,21 @@
 
 export GPG_TTY=$(tty)
 
+TEMP=${RUNNER_TEMP}/deployer_workspace
 HOME=${GITHUB_WORKSPACE}
 GIT_USER=${GITHUB_REPOSITORY_OWNER}
 REPO_SLUG=${GITHUB_REPOSITORY}
 BRANCH=${GITHUB_REF_NAME}
 if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then PULL_REQUEST="true"; else PULL_REQUEST="false"; fi
 
-DISTRIBUTION_HOME=${HOME}/build/${REPO_SLUG}/distribution
-MVN_SETTINGS=${DISTRIBUTION_HOME}/settings.xml
+MVN_SETTINGS=${TEMP}/settings.xml
 
-mkdir -p ${DISTRIBUTION_HOME}
+mkdir -p ${TEMP}
 
 function download {
 	echo "Download ${DEPLOYER_URL}/$1"
-	curl ${DEPLOYER_URL}/$1 -o ${DISTRIBUTION_HOME}/$1
-	if [ ! -f ${DISTRIBUTION_HOME}/$1 ]; then echo "ERROR: Download ${DEPLOYER_URL}/$1 to ${DISTRIBUTION_HOME}/$1"; exit 1; fi
+	curl ${DEPLOYER_URL}/$1 -o ${TEMP}/$1
+	if [ ! -f ${TEMP}/$1 ]; then echo "ERROR: Download ${DEPLOYER_URL}/$1 to ${TEMP}/$1"; exit 1; fi
 }
 
 download pushingkey.enc;
@@ -24,14 +24,17 @@ download pubring.gpg;
 download secring.gpg.enc;
 download settings.xml;
 
+echo 'Start SSh agent'
+eval "$(ssh-agent)"
+
 echo 'Decrypt SSH key so we can sign artifact'
-openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/secring.gpg.enc -out ${DISTRIBUTION_HOME}/secring.gpg -d
+openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/secring.gpg.enc -out ${TEMP}/secring.gpg -d
 
 if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
 echo 'Import GPG rings'
-gpg --import ${DISTRIBUTION_HOME}/pubring.gpg
-gpg --import ${DISTRIBUTION_HOME}/secring.gpg
+gpg --import ${TEMP}/pubring.gpg
+gpg --import ${TEMP}/secring.gpg
 
 DEBUG_PARAM=
 if [ "$DEBUG" = 'true' ]; then
@@ -52,13 +55,13 @@ elif [ "$BRANCH" = 'release' ]; then
 		echo "Prepare and perform RELEASE"
 		
 		echo 'Decrypt SSH key so we can push release to GitHub'
-		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ${DISTRIBUTION_HOME}/pushing.key -d && \
-		chmod 600 ${DISTRIBUTION_HOME}/pushing.key
+		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/pushingkey.enc -out ${TEMP}/pushing.key -d && \
+		chmod 600 ${TEMP}/pushing.key
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
 		
 		echo 'Import pushing key'
-		ssh-add ${DISTRIBUTION_HOME}/pushing.key
+		ssh-add ${TEMP}/pushing.key
 		
 		echo 'Configure GIT'
 		git config --global user.email "$GIT_EMAIL" && \
