@@ -11,7 +11,8 @@ if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then PULL_REQUEST="true"; else PUL
 
 MVN_SETTINGS=${TEMP}/settings.xml
 
-mkdir -p ${TEMP}
+echo "Prepare temporary directory: mkdir ${TEMP}"
+mkdir -p ${RUNNER_TEMP}/.ssh
 
 function download {
 	echo "Download ${DEPLOYER_URL}/$1"
@@ -24,7 +25,7 @@ download pubring.gpg;
 download secring.gpg.enc;
 download settings.xml;
 
-echo 'Start SSh agent'
+echo 'Start SSH agent'
 eval "$(ssh-agent)"
 
 echo 'Decrypt SSH key so we can sign artifact'
