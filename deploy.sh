@@ -27,8 +27,8 @@ download settings.xml;
 # Decrypt SSH key so we can sign artifact
 openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/secring.gpg.enc -out ${DISTRIBUTION_HOME}/secring.gpg -d
 
-gpg --import pubring.gpg
-gpg --import secring.gpg
+gpg --import ${DISTRIBUTION_HOME}/pubring.gpg
+gpg --import ${DISTRIBUTION_HOME}/secring.gpg
 
 if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
