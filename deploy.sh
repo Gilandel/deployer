@@ -2,14 +2,18 @@
 
 export GPG_TTY=$(tty)
 
-TEMP=${RUNNER_TEMP}/deployer_workspace
+export TEMP=${RUNNER_TEMP}/deployer_workspace
 HOME=${GITHUB_WORKSPACE}
+GNUPG=${HOME}/.gnupg/
 GIT_USER=${GITHUB_REPOSITORY_OWNER}
 REPO_SLUG=${GITHUB_REPOSITORY}
 BRANCH=${GITHUB_REF_NAME}
 if [ "$GITHUB_EVENT_NAME" = 'pull_request' ]; then PULL_REQUEST="true"; else PULL_REQUEST="false"; fi
 
 MVN_SETTINGS=${TEMP}/settings.xml
+
+echo "Prepare GnuPG directory: mkdir ${GNUPG}"
+mkdir -p ${GNUPG}
 
 echo "Prepare temporary directory: mkdir ${TEMP}"
 mkdir -p ${TEMP}
@@ -20,25 +24,25 @@ mkdir -p ${HOME}/.ssh && chmod -R 600 ${HOME}/.ssh
 function download {
 	echo "Download ${DEPLOYER_URL}/$1"
 	curl ${DEPLOYER_URL}/$1 -o ${TEMP}/$1
-	if [ ! -f ${TEMP}/$1 ]; then echo "ERROR: Download ${DEPLOYER_URL}/$1 to ${TEMP}/$1"; exit 1; fi
+	if [ ! -f ${TEMP}/$1 ]; then echo "ERROR: Download ${DEPLOYER_URL}/$1 to $2/$1"; exit 1; fi
 }
 
-download pushingkey.enc;
-download pubring.gpg;
-download secring.gpg.enc;
-download settings.xml;
+download pushingkey.enc ${TEMP};
+download pubring.gpg ${GNUPG};
+download secring.gpg.enc ${TEMP};
+download settings.xml ${TEMP};
 
 echo 'Start SSH agent'
 eval "$(ssh-agent)"
 
 echo 'Decrypt SSH key so we can sign artifact'
-openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/secring.gpg.enc -out ${TEMP}/secring.gpg -d
+openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/secring.gpg.enc -out ${GNUPG}/secring.gpg -d
 
 if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
 echo 'Import GPG rings'
-echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase --import ${TEMP}/pubring.gpg
-echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase --import ${TEMP}/secring.gpg
+echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase --import ${GNUPG}/pubring.gpg
+echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase --import ${GNUPG}/secring.gpg
 
 DEBUG_PARAM=
 if [ "$DEBUG" = 'true' ]; then
