@@ -37,8 +37,8 @@ openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${TEMP}/secrin
 if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
 echo 'Import GPG rings'
-gpg --import ${TEMP}/pubring.gpg
-gpg --import ${TEMP}/secring.gpg
+echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase --import ${TEMP}/pubring.gpg
+echo "$GPG_PASSPHRASE" | gpg --batch --yes --passphrase --import ${TEMP}/secring.gpg
 
 DEBUG_PARAM=
 if [ "$DEBUG" = 'true' ]; then
