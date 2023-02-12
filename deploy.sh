@@ -50,8 +50,9 @@ elif [ "$BRANCH" = 'release' ]; then
 		echo "Prepare and perform RELEASE"
 		
 		# Decrypt SSH key so we can push release to GitHub
-		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ${HOME}/.ssh/id_rsa -d && \
-		chmod 600 ${HOME}/.ssh/id_rsa
+		mkdir -p ~/.ssh
+		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ~/.ssh/id_rsa -d && \
+		chmod 600 ~/.ssh/id_rsa
 		
 		if [ $? -ne 0 ]; then echo "ERROR: Decrypt pushingkey.enc"; exit $?; fi
 		
