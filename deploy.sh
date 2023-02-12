@@ -24,13 +24,14 @@ download pubring.gpg;
 download secring.gpg.enc;
 download settings.xml;
 
-# Decrypt SSH key so we can sign artifact
+echo 'Decrypt SSH key so we can sign artifact'
 openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/secring.gpg.enc -out ${DISTRIBUTION_HOME}/secring.gpg -d
 
+if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
+
+echo 'Import GPG rings'
 gpg --import ${DISTRIBUTION_HOME}/pubring.gpg
 gpg --import ${DISTRIBUTION_HOME}/secring.gpg
-
-if [ $? -ne 0 ]; then echo "ERROR: Decrypt secring.gpg.enc"; exit $?; fi
 
 DEBUG_PARAM=
 if [ "$DEBUG" = 'true' ]; then
@@ -41,6 +42,7 @@ if [ "$BRANCH" = 'master' ] && [ "$PULL_REQUEST" = 'false' ]; then
 	echo "Build and deploy SNAPSHOT"
 	
 	mvn deploy -DskipTests=true -P sign,build-extras --settings ${MVN_SETTINGS} ${DEBUG_PARAM}
+	
 elif [ "$BRANCH" = 'release' ]; then
 	GIT_LAST_LOG=$(git log --format=%B -n 1)
 	
@@ -49,7 +51,7 @@ elif [ "$BRANCH" = 'release' ]; then
 	else
 		echo "Prepare and perform RELEASE"
 		
-		# Decrypt SSH key so we can push release to GitHub
+		echo 'Decrypt SSH key so we can push release to GitHub'
 		mkdir -p ~/.ssh
 		openssl aes-256-cbc -K ${ENCPRYPTED_KEY} -iv ${ENCPRYPTED_IV} -in ${DISTRIBUTION_HOME}/pushingkey.enc -out ~/.ssh/id_rsa -d && \
 		chmod 600 ~/.ssh/id_rsa
